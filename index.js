@@ -3,12 +3,12 @@ const handlebars = require("express-handlebars");
 const session = require("express-session");
 const path = require("path");
 
-// const userRoute = require("./routes/user");
-// const movieRoute = require("./routes/movie");
-// const { db } = require("./models/pg");
+const userRoute = require("./routes/user");
+const productRoute = require("./routes/product");
+const { db } = require("./models/connect");
 
 require('dotenv').config()
-console.log('check env ', process.env) // remove this after you've confirmed it is working
+// console.log('check env ', process.env) // remove this after you've confirmed it is working
 
 const app = express();
 
@@ -45,12 +45,20 @@ app.use(express.json({ limit: "10MB" }));
 app.use(express.urlencoded({ extended: true }));
 
 //
-// app.use("/user", userRoute);
+app.use("/user", userRoute);
 
-// app.use("/movie", movieRoute);
+app.use("/product", productRoute);
 
 app.use("/", async (req, res, next) => {
-    return res.send('hello');
+    if (!req.session.user) {
+        return res.render("login");
+    }
+    try {
+        return res.send('hello');
+    } catch (err) {
+        console.log(err);
+        return res.send('hello');
+    }
 });
 
 app.use((err, req, res, next) => {
